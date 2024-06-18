@@ -28,15 +28,21 @@ class UserRegistrationController extends Controller
                 'password' => ['required']
             ]);
 
-            $user = User::create([
-                'name'             =>   $request->first_name,
-                'username'         =>   $request->username,
-                'password'         =>   Hash::make($request->password),
-                'email'            =>   $request->email,
-                'voucher_code'     =>   VoucherController::generate(5),
-            ]);
+            //for some reason, username doesn't save with this one. 
+            // $user = User::create([
+            //     'name'             =>   $request->first_name,
+            //     'username'         =>   $request->username,
+            //     'email'            =>   $request->email,
+            //     'password'         =>   Hash::make($request->password)
+            // ]);
+
+            $user = new User;
+            $user->name             =   $request->first_name;
+            $user->username         =   $request->username;
+            $user->email            =   $request->email;
+            $user->password         =   Hash::make($request->password);
             
-            if($user) {
+            if($user->save()) {
                 $voucher = Voucher::create([
                     'voucher_code' => VoucherController::generate(5),
                     'user_id' => $user->id,
@@ -61,7 +67,6 @@ class UserRegistrationController extends Controller
             //throw $th;
 
             return $response = [
-                // 'data' => $user,
                 'message' => $th->getMessage(),
                 'status' => 500,
             ];

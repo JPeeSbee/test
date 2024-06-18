@@ -43,12 +43,18 @@ class RegisteredUserController extends Controller
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
-            $user = User::create([
-                'name' => $request->first_name,
-                'email' => $request->email,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-            ]);
+            // $user = User::create([
+            //     'name' => $request->first_name,
+            //     'email' => $request->email,
+            //     'username' => $request->username,
+            //     'password' => Hash::make($request->password),
+            // ]);
+            $user = new User;
+            $user->name             =   $request->first_name;
+            $user->username         =   $request->username;
+            $user->email            =   $request->email;
+            $user->password         =   Hash::make($request->password);
+            $user->save();
 
             event(new Registered($user));
 
@@ -80,7 +86,7 @@ class RegisteredUserController extends Controller
             //     'message' => $th->getMessage(),
             //     'status' => 500,
             // ]; 
-
+// dd($th->getMessage());
             session(['fail' => $th->getMessage()]);
             return back();
         }
