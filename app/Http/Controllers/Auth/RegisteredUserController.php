@@ -32,14 +32,14 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)//: RedirectResponse
     {
         try {
             //code...
             $request->validate([
                 'first_name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-                'username' => ['required', 'string', 'max:255'],
+                'username' => ['required', 'string', 'max:50'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
@@ -69,6 +69,7 @@ class RegisteredUserController extends Controller
 
             Auth::login($user);
 
+            session(['success' => 'Successfully Registered!']);
             return redirect(RouteServiceProvider::HOME);
             
         } catch (\Throwable $th) {
@@ -78,8 +79,9 @@ class RegisteredUserController extends Controller
             //     // 'data' => $user,
             //     'message' => $th->getMessage(),
             //     'status' => 500,
-            // ];
-                // dd($th->getMessage());
+            // ]; 
+
+            session(['fail' => $th->getMessage()]);
             return back();
         }
     }

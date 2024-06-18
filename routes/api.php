@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\api\UserRegistrationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +19,5 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 //     return $request->user();
 // });
 
-Route::post('register', [RegisteredUserController::class, 'store'])->name('register');
+Route::post('registration', [UserRegistrationController::class, 'store']);
 

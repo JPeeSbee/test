@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\VoucherController;
 
 /*
@@ -25,7 +25,9 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/voucher', [VoucherController::class, 'index'])->name('voucher.index');
+    Route::post('/voucher', [VoucherController::class, 'store'])->name('voucher.store');
     Route::get('/voucher/delete/{id}', [VoucherController::class, 'destroy'])->name('voucher.destroy');
+    Route::post('register', [RegisteredUserController::class, 'store'])->name('register');
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

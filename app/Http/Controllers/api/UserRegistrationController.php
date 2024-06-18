@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\api;
 
 use App\Models\User;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use App\Mail\UserRegisteredMail;
+use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -20,36 +22,46 @@ class UserRegistrationController extends Controller
         try {
             //code...
             $validated = $request->validate([
-                'username' => 'required',
-                'first_name' => 'required',
-                'email' => 'email:rfc,dns'
+                'first_name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+                'username' => ['required', 'string', 'max:50'],
+                'password' => ['required']
             ]);
 
-            $user = new User;
-            $user->name             =   $request->first_name;
-            $user->username         =   $request->username;
-            $user->password         =   Hash::make($request->username);
-            $user->email            =   $request->email;
-            $user->voucher_code     =   User::voucher(5);
+            $user = User::create([
+                'name'             =>   $request->first_name,
+                'username'         =>   $request->username,
+                'password'         =>   Hash::make($request->password),
+                'email'            =>   $request->email,
+                'voucher_code'     =>   VoucherController::generate(5),
+            ]);
             
-            if($user->save()) {
-                Mail::to($request->email)->send(new UserRegisteredMail($user));
-                // $mail = (new UserRegisteredMail($user));
-                // Mail::to($request->email)
-                //     ->queue($mail);
+            if($user) {
+                $voucher = Voucher::create([
+                    'voucher_code' => VoucherController::generate(5),
+                    'user_id' => $user->id,
+                ]);
+
+                Mail::to($request->email)->send(new UserRegisteredMail($voucher));
+                
+                return $response = [
+                    'data' => $user,
+                    'message' => 'Successfully Registered',
+                    'status' => 200,
+                ];
             }
 
             return $response = [
                 'data' => $user,
-                'message' => 'Successfully Registered',
-                'status' => 200,
+                'message' => 'Bad Request',
+                'status' => 400,
             ];
 
         } catch (\Throwable $th) {
             //throw $th;
 
             return $response = [
-                'data' => $user,
+                // 'data' => $user,
                 'message' => $th->getMessage(),
                 'status' => 500,
             ];
